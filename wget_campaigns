@@ -1,0 +1,61 @@
+#!/bin/bash
+
+http0="http://archive.stsci.edu/missions/hlsp/k2sff/"
+local_campaign="../../Campaigns/"
+
+if [[ ! -e "$local_campaign" ]] ; then 
+
+	mkdir "$local_campaign"
+fi
+#field0 is the campaign itself
+for field0 in `lynx -dump -nolist -accept_all_cookies "$http0" | egrep "[DIR]\>" | awk '$2 ~ /c/ { print $2}'`; do 
+	#echo "$field0"
+	http1="$http0$field0"
+	for field1 in `lynx -dump -nolist -accept_all_cookies "$http1" | egrep "[DIR]\>" | awk '$2 !~ /Parent/ {print $2}'`; do
+		#echo "$field1"
+		http2="$http1$field1"
+		for field2 in `lynx -dump -nolist -accept_all_cookies "$http2" | egrep "[DIR]\>" | awk '$2 !~ /Parent/ {print $2}'`; do
+			#echo "$field2"
+			http3="$http2$field2"
+			#field3 is the .fits filename itself 
+			for field3 in `lynx -dump -nolist -accept_all_cookies "$http3" | awk '{print $3}' | grep ".fits"`; do 
+				#echo "$field3" 
+				http4="$http3$field3"
+					if [[ ! -e "$local_campaign$field0" ]] ; then
+					       mkdir "$local_campaign$field0" 
+					       mkdir "$local_campaign$field0$field1"
+					       mkdir "$local_campaign$field0$field1$field2"
+					       wget --random-wait --mirror -nd -q "$http4" -O "$local_campaign$field0$field1$field2$field3"
+				        elif [[ -e "$local_campaign$field0" ]] ; then
+						if [[ ! -e "$local_campaign$field0$field1" ]]; then
+							mkdir "$local_campaign$field0$field1"
+							mkdir "$local_campaign$field0$field1$field2"
+							wget --random-wait --mirror -nd -q "$http4" -O "$local_campaign$field0$field1$field2$field3"
+						elif [[ -e "$local_campaign$field0$field1" ]]; then
+							if [[ ! -e "$local_campaign$field0$field1$field2" ]]; then 
+								mkdir "$local_campaign$field0$field1$field2"
+								wget --random-wait \
+									--mirror -nd -q "$http4" -O  "$local_campaign$field0$field1$field2$field3"
+							elif [[ -e "$local_campaign$field0$field1$field2" ]] ; then 
+								if [[ ! -e "$local_campaign$field0$field1$field2$field3" ]]; then
+									wget --random-wait \
+										--mirror -nd -q "$http4" -O "$local_campaign$field0$field1$field2$field3"
+								fi
+							fi
+
+						fi
+
+					fi
+
+	       			http4=""
+			done
+			http3=""
+		done
+
+
+		http2=""
+	done
+	http1=""
+done
+
+
