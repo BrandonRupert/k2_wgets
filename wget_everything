@@ -1,7 +1,12 @@
 #!/bin/bash
+
+#DOWNLOADS  A LOT OF STUFF
 #Gets everything. Makes directories.
 #Impractical, just to have necessary syntax
 #planned out. Will be restricted to AGN_related campaigns
+
+#TO execute       ./wget_everything
+
 http0="http://archive.stsci.edu/missions/hlsp/k2sff/"
 local_campaign="../../Campaigns/"
 
