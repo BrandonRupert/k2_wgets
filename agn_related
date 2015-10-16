@@ -1,4 +1,8 @@
 #!/bin/bash
+#In progress, likely eventually to be combined with ideas from 
+#wget_everything in same directory. Gets and prints GO and their
+#campaigns related to AGN, using an AWK regexp relating to 
+#AGN related terms
 camps_http="http://keplerscience.arc.nasa.gov/K2/GuestInvestigations.shtml"
 for camp in `lynx -dump -nolist -accept_all_cookies "$camps_http" | awk '$1 ~ /^[0-9]/ { print $1}'` ; do
 	printf -v camp2 "%02d" $camp
@@ -6,6 +10,6 @@ for camp in `lynx -dump -nolist -accept_all_cookies "$camps_http" | awk '$1 ~ /^
 	#lynx -dump -nolist -accept_all_cookies "$invest_http" 
 	for go_field in `lynx -dump -nolist \
 		-accept_all_cookies "$invest_http" | egrep "GO" | awk 'BEGIN{ FS=" "} /([Bb]lazar|AGN|[Aa]ctive [Gg]alactic [Nn]uclei)/ {print $1}' `; do 
-		echo "$camp--$go_field"
+		echo "from campaign $camp related GO $go_field"
 	done
 done
