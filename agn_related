@@ -18,13 +18,15 @@ local_out="/home/$USER/Campaigns"
 if [[ ! -e "$local_out"/ ]] ; then 
 	mkdir "$local_out"
 fi 
+nfiles=0
 echo "Sending files to $local_out"
 for camp in `lynx -dump -nolist -accept_all_cookies "$camps_http" | awk '$1 ~ /^[0-9]/ { print $1}'` ; do
 	printf -v camp2 "%02d" $camp
 	invest_http="keplerscience.arc.nasa.gov/K2/GuestInvestigationsC${camp2}.shtml"
 
 	for go_field in `lynx -dump -nolist \
-		-accept_all_cookies "$invest_http" | egrep "GO" | awk 'BEGIN{ FS=" "} /([Bb]lazar|AGN|[Aa]ctive [Gg]alactic [Nn]uclei)/ {print $1}' `; do 
+		-accept_all_cookies "$invest_http" \
+		| egrep "GO" | awk 'BEGIN{ FS=" "} /([Bb]lazar|AGN|[Aa]ctive [Gg]alactic [Nn]uclei)/ {print $1}' `; do 
 		#echo "from campaign $camp related $go_field"
 		csv_file="keplerscience.arc.nasa.gov/K2/docs/Campaigns/C${camp}/K2Campaign${camp}targets.csv"
 		for row in `lynx -dump -nolist \
@@ -35,6 +37,10 @@ for camp in `lynx -dump -nolist -accept_all_cookies "$camps_http" | awk '$1 ~ /^
 			fits_address="${fits_address}c${camp2}/${row:0:4}00000/${row:4:5}/${fits_filename}"
 			wget -U 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:14.0) Gecko/20100101 Firefox/14.0.1'\
 			--random-wait  -nd -q "$fits_address" -O "${local_out}/${fits_filename}" --content-disposition
+			nfiles=$((nfiles+1))
+			printf "Adding : [%s]\r" "${fits_filename}"
 		done
 	done
 done
+printf "\n"
+echo "$nfiles files placed in "$local_out"
