@@ -7,9 +7,18 @@
 #Requires lynx browser
 
 #To execute: ./agn_related
-n=0
+
+#set directory in local_out variable. If nonexistent it will be created
+
 camps_http="http://keplerscience.arc.nasa.gov/K2/GuestInvestigations.shtml"
-local_out="../../Campaigns"
+local_out="/home/$USER/Campaigns"
+
+
+
+if [[ ! -e "$local_out"/ ]] ; then 
+	mkdir "$local_out"
+fi 
+echo "Sending files to $local_out"
 for camp in `lynx -dump -nolist -accept_all_cookies "$camps_http" | awk '$1 ~ /^[0-9]/ { print $1}'` ; do
 	printf -v camp2 "%02d" $camp
 	invest_http="keplerscience.arc.nasa.gov/K2/GuestInvestigationsC${camp2}.shtml"
